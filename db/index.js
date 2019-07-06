@@ -11,6 +11,8 @@ mongoose.connect(connectionURL, { useNewUrlParser: true })
   .catch((e) => console.error(e));
 const db = mongoose.connection;
 
+require('./models/user.js');
+
 // Check connection
 db.on('connected', () => {
   console.log(`Mongoose connection open  on ${connectionURL}`)
