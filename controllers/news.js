@@ -32,8 +32,76 @@ const errorHandler = (err, res) => {
 };
 
 
+
+
+module.exports.newNews = (req, res, next) => {
+	const data = JSON.parse(req.body);
+	const { userId, theme, text, date } = data;
+
+	
+	console.log(data);
+	console.log(userId);
+	console.log(theme);
+	console.log(text);
+	console.log(date);
+
+	
+	// User.findOne({ username }).then(user => {
+	// 	if (user) {
+	// 		// res.status(201).json({ statusMessage: 'Ok', data: 'result' });
+	// 		return res.json({ msg: 'Пользователь с таким логином уже существует'});
+	// 		// throw new Error('Такой пользователь уже существует!');
+	// 	} else {
+	// 		const newUser = new User();
+	// 		// newUser.id = uuidv4();
+	// 		newUser.username = username;
+	// 		newUser.surName = surName;
+	// 		newUser.firstName = firstName;
+	// 		newUser.middleName = middleName;
+	// 		newUser.image = '';
+	// 		newUser.access_token = uuidv4();
+	// 		newUser.permission = permission;
+	// 		newUser.permissionId = '2';
+	// 		newUser.setPassword(password);
+	// 		newUser
+	// 			.save()
+	// 			.then(user => {
+	// 				req.logIn(user, err => {
+	// 					if (err) next(err);
+	// 					// return res.json(user);
+	// 					return res.json(resultItemConverter(user));
+	// 				});
+	// 			})
+	// 			.catch(err => {
+	// 				errorHandler(err, res);
+	// 			});
+	// 	}
+	// });
+};
+
+module.exports.getNews = (req, res, next) => {
+	return res.json({ msg: 'OK' });
+};
+
+module.exports.updateNews = (req, res, next) => {
+
+};
+
+module.exports.deleteNews = (req, res, next) => {
+
+};
+
+
+
+
+
+
+
+
+
+
 module.exports.token = (req, res, next) => {
-	const token = req.cookies.access_token;
+	const token = req.cookies.token;
 	if (!!token) {
 		User.findOne({ token }).then(user => {
 			if (user) {
@@ -73,7 +141,7 @@ module.exports.login = (req, res, next) => {
 				const token = uuidv4();
 				user.setToken(token);
 				user.save().then(user => {
-					res.cookie('access_token', token, {
+					res.cookie('token', token, {
 						maxAge: 7 * 60 * 60 * 1000,
 						path: '/',
 						httpOnly: true,
@@ -90,7 +158,7 @@ module.exports.login = (req, res, next) => {
 module.exports.registration = (req, res, next) => {
 	const data = JSON.parse(req.body);
 	const { username, surName, firstName, middleName, password, permission } = data;
-	
+
 	User.findOne({ username }).then(user => {
 		if (user) {
 			// res.status(201).json({ statusMessage: 'Ok', data: 'result' });
@@ -188,7 +256,7 @@ module.exports.updateUser = async (req, res, next) => {
 	const id = req.params.id;
 	const data =  JSON.parse(req.body);
 	const user = await User.findById(id);
-	
+
 	if(data.oldPassword && !user.validPassword(data.oldPassword)){
 		return res.status(400).json({
 			statusMessage: 'Error',
@@ -231,8 +299,4 @@ module.exports.delUserById = (req, res, next) => {
 	}).catch(err => {
 		errorHandler(err, res);
 	});
-};
-
-module.exports.logout = (req, res, next) => {
-
 };

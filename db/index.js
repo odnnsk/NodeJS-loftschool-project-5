@@ -12,6 +12,7 @@ mongoose.connect(connectionURL, { useNewUrlParser: true })
 const db = mongoose.connection;
 
 require('./models/user.js');
+require('./models/news.js');
 
 // Check connection
 db.on('connected', () => {

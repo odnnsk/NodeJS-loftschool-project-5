@@ -53,10 +53,6 @@ app.use(
 );
 
 
-// app.get('/', (req, res, next) => {
-// 	res.json({"permission":{"chat":{"C":false,"R":true,"U":true,"D":false},"news":{"C":false,"R":true,"U":false,"D":false},"setting":{"C":false,"R":false,"U":false,"D":false}},"_id":"5d20a242a9fab53dac194370","username":"admin","surName":"a","firstName":"a","middleName":"a","image":"","access_token":"ff68f300-8e93-4c86-83be-974dd1a2e86d","permissionId":"2","password":"$2a$10$jbX2RB9fyVqRt66QgkTCZ.K6aGqhYmGLYrXiok2BFkolh7nRjnAZa","__v":0});
-// })
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 //Passport
@@ -67,6 +63,9 @@ app.use(passport.session());
 
 // Routes
 app.use('/api', require(path.join(__dirname, 'api')));
+// app.get('/', (req, res, next) => {
+// 	console.log('1111111111');
+// });
 app.use(require(path.join(__dirname, 'routes')));
 
 

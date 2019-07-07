@@ -38,7 +38,7 @@ passport.use(
 						return done(null, false, 'User not found');
 					}
 					if (!user.validPassword(password)) {
-						return done(null, false, 'Incorrect password');
+						return done(null, false, 'Incorrect password!');
 					}
 					return done(null, user);
 				})
