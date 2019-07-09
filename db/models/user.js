@@ -78,10 +78,7 @@ const userSchema = new Schema({
 	},
 	permissionId: {
 		type: String,
-	},
-	access_token: {
-		type: String,
-	},
+	}
 });
 
 userSchema.methods.setPassword = function(password) {
@@ -92,8 +89,8 @@ userSchema.methods.validPassword = function(password) {
 	return bCrypt.compareSync(password, this.password);
 };
 
-userSchema.methods.setToken = function(access_token) {
-	this.access_token = access_token;
-};
+// userSchema.methods.setToken = function(access_token) {
+// 	this.access_token = access_token;
+// };
 
 mongoose.model('user', userSchema);

@@ -5,10 +5,18 @@ const uuidv4 = require('uuid/v4');
 const formidable = require('formidable');
 const path = require('path');
 const fs = require('fs');
+const jwt = require('jsonwebtoken');
+const secret = require('../config/config.json').secret;
 
 
 
 const resultItemConverter = (item) => {
+	const payload = {
+		id: item._id,
+	};
+
+	const access_token = jwt.sign(payload, secret);
+
 	return {
 		id: item._id,
 		username: item.username,
@@ -16,7 +24,7 @@ const resultItemConverter = (item) => {
 		firstName: item.firstName,
 		middleName: item.middleName,
 		image: item.image,
-		access_token: item.access_token,
+		access_token: access_token,
 		permission: item.permission,
 		permissionId: item._id,
 		password: item.password
@@ -34,6 +42,8 @@ const errorHandler = (err, res) => {
 
 module.exports.token = (req, res, next) => {
 	const token = req.cookies.access_token;
+
+
 	if (!!token) {
 		User.findOne({ token }).then(user => {
 			if (user) {
@@ -65,25 +75,55 @@ module.exports.login = (req, res, next) => {
 				data: { status: 400, message: info },
 			});
 		}
-		req.logIn(user, function(err) {
-			if (err) {
-				return next(err);
-			}
-			if (req.body.remembered) {
-				const token = uuidv4();
-				user.setToken(token);
-				user.save().then(user => {
-					res.cookie('access_token', token, {
-						maxAge: 7 * 60 * 60 * 1000,
-						path: '/',
-						httpOnly: true,
-					});
-					return res.json(resultItemConverter(user));
-				});
-			} else {
-				return res.json(resultItemConverter(user));
-			}
-		});
+		// req.logIn(user, function(err) {
+		// 	if (err) {
+		// 		return next(err);
+		// 	}
+		// 	if (req.body.remembered) {
+		// 		const token = uuidv4();
+		// 		user.setToken(token);
+		// 		user.save().then(user => {
+		// 			res.cookie('access_token', token, {
+		// 				maxAge: 7 * 60 * 60 * 1000,
+		// 				path: '/',
+		// 				httpOnly: false,
+		// 			});
+		// 			return res.json(resultItemConverter(user));
+		// 		});
+		// 	} else {
+		// 		return res.json(resultItemConverter(user));
+		// 	}
+		// });
+
+
+
+		if (req.body.remembered) {
+			const payload = {
+				id: user._id,
+			};
+
+			const access_token = jwt.sign(payload, secret);
+			// user.setToken(token);
+			// user.save().then(user => {
+			// 	res.cookie('access_token', token, {
+			// 		maxAge: 7 * 60 * 60 * 1000,
+			// 		path: '/',
+			// 		httpOnly: false,
+			// 	});
+			// 	return res.json(resultItemConverter(user));
+			// });
+
+
+			res.cookie('access_token', access_token, {
+				maxAge: 7 * 60 * 60 * 1000,
+				path: '/',
+				httpOnly: false,
+			});
+			return res.json(resultItemConverter(user));
+		} else {
+			return res.json(resultItemConverter(user));
+		}
+
 	})(req, res, next);
 };
 
@@ -98,24 +138,24 @@ module.exports.registration = (req, res, next) => {
 			// throw new Error('Такой пользователь уже существует!');
 		} else {
 			const newUser = new User();
-			// newUser.id = uuidv4();
 			newUser.username = username;
 			newUser.surName = surName;
 			newUser.firstName = firstName;
 			newUser.middleName = middleName;
 			newUser.image = '';
-			newUser.access_token = uuidv4();
 			newUser.permission = permission;
 			newUser.permissionId = '2';
 			newUser.setPassword(password);
 			newUser
 				.save()
 				.then(user => {
-					req.logIn(user, err => {
-						if (err) next(err);
-						// return res.json(user);
-						return res.json(resultItemConverter(user));
-					});
+					// req.logIn(user, err => {
+					// 	if (err) next(err);
+					// 	// return res.json(user);
+					// 	return res.json(resultItemConverter(user));
+					// });
+
+					return res.json(resultItemConverter(user));
 				})
 				.catch(err => {
 					errorHandler(err, res);
