@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bCrypt = require('bcryptjs');
 
 const Schema = mongoose.Schema;
 
@@ -7,7 +6,7 @@ const newsSchema = new Schema({
 	userId: {
 		type: String,
 		required: [true, 'userId required'],
-		unique: true,
+		// unique: true,
 	},
 	date: {
 		type: String,
@@ -20,8 +19,8 @@ const newsSchema = new Schema({
 	text: {
 		type: String,
 		required: [true, 'text required'],
-	},
-});
+	}
+},  { versionKey: false });
 
 
 mongoose.model('news', newsSchema);

@@ -79,7 +79,7 @@ const userSchema = new Schema({
 	permissionId: {
 		type: String,
 	}
-});
+}, { versionKey: false });
 
 userSchema.methods.setPassword = function(password) {
 	this.password = bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);

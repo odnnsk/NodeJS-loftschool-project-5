@@ -1,10 +1,10 @@
-const passport = require('passport');
 const mongoose = require('mongoose');
 const User = mongoose.model('user');
 const uuidv4 = require('uuid/v4');
 const formidable = require('formidable');
 const path = require('path');
 const fs = require('fs');
+const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const secret = require('../config/config.json').secret;
 
@@ -41,22 +41,19 @@ const errorHandler = (err, res) => {
 
 
 module.exports.token = (req, res, next) => {
-	const token = req.cookies.access_token;
+	passport.authenticate('jwt', { session: false }, (err, user, info) => {
+		if (err) {
+			return next(err);
+		}
+		if (!user) {
+			return res.status(400).json({
+				statusMessage: 'Error',
+				data: { status: 400, message: info },
+			});
+		}
 
-
-	if (!!token) {
-		User.findOne({ token }).then(user => {
-			if (user) {
-				req.logIn(user, err => {
-					if (err) next(err);
-					return res.json(resultItemConverter(user));
-				});
-			}
-			next();
-		});
-	} else {
-		next();
-	}
+		return res.json(resultItemConverter(user));
+	})(req, res, next);
 };
 
 module.exports.login = (req, res, next) => {
@@ -65,7 +62,7 @@ module.exports.login = (req, res, next) => {
 
 	req.body = data;
 
-	passport.authenticate('local', function(err, user, info) {
+	passport.authenticate('local', { session: false }, function(err, user, info) {
 		if (err) {
 			return next(err);
 		}
@@ -99,7 +96,7 @@ module.exports.login = (req, res, next) => {
 
 		if (req.body.remembered) {
 			const payload = {
-				id: user._id,
+				id: user.id,
 			};
 
 			const access_token = jwt.sign(payload, secret);

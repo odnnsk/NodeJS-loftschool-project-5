@@ -22,7 +22,6 @@ db.on('connected', () => {
 			newUser.firstName = 'admin';
 			newUser.middleName = 'admin';
 			newUser.image = '';
-			newUser.access_token = uuidv4();
 			newUser.permission = permission;
 			newUser.permissionId = '1';
 			newUser.setPassword('123');
