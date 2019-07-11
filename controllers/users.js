@@ -1,23 +1,13 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('user');
-const uuidv4 = require('uuid/v4');
 const formidable = require('formidable');
 const path = require('path');
 const fs = require('fs');
-const os = require("os");
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
-const secret = require('../config/config.json').secret;
-
+const makeJwtToken = require('../libs/makeJwtToken');
 
 
 const resultItemConverter = (item) => {
-	const payload = {
-		id: item._id,
-	};
-
-	const access_token = jwt.sign(payload, secret);
-
 	return {
 		id: item._id,
 		username: item.username,
@@ -25,7 +15,7 @@ const resultItemConverter = (item) => {
 		firstName: item.firstName,
 		middleName: item.middleName,
 		image: item.image,
-		access_token: access_token,
+		access_token: makeJwtToken(item),
 		permission: item.permission,
 		permissionId: item._id,
 		password: item.password
@@ -73,44 +63,9 @@ module.exports.login = (req, res, next) => {
 				data: { status: 400, message: info },
 			});
 		}
-		// req.logIn(user, function(err) {
-		// 	if (err) {
-		// 		return next(err);
-		// 	}
-		// 	if (req.body.remembered) {
-		// 		const token = uuidv4();
-		// 		user.setToken(token);
-		// 		user.save().then(user => {
-		// 			res.cookie('access_token', token, {
-		// 				maxAge: 7 * 60 * 60 * 1000,
-		// 				path: '/',
-		// 				httpOnly: false,
-		// 			});
-		// 			return res.json(resultItemConverter(user));
-		// 		});
-		// 	} else {
-		// 		return res.json(resultItemConverter(user));
-		// 	}
-		// });
-
-
 
 		if (req.body.remembered) {
-			const payload = {
-				id: user.id,
-			};
-
-			const access_token = jwt.sign(payload, secret);
-			// user.setToken(token);
-			// user.save().then(user => {
-			// 	res.cookie('access_token', token, {
-			// 		maxAge: 7 * 60 * 60 * 1000,
-			// 		path: '/',
-			// 		httpOnly: false,
-			// 	});
-			// 	return res.json(resultItemConverter(user));
-			// });
-
+			const access_token = makeJwtToken(user);
 
 			res.cookie('access_token', access_token, {
 				maxAge: 7 * 60 * 60 * 1000,
@@ -132,7 +87,6 @@ module.exports.registration = (req, res, next) => {
 	
 	User.findOne({ username }).then(user => {
 		if (user) {
-			// res.status(201).json({ statusMessage: 'Ok', data: 'result' });
 			return res.json({ msg: 'Пользователь с таким логином уже существует'});
 			// throw new Error('Такой пользователь уже существует!');
 		} else {
@@ -146,18 +100,14 @@ module.exports.registration = (req, res, next) => {
 			newUser.permissionId = '2';
 			newUser.setPassword(password);
 			newUser.save().then(user => {
-				// req.logIn(user, err => {
-				// 	if (err) next(err);
-				// 	// return res.json(user);
-				// 	return res.json(resultItemConverter(user));
-				// });
-
 				return res.json(resultItemConverter(user));
 			})
 			.catch(err => {
 				errorHandler(err, res);
 			});
 		}
+	}).catch(err => {
+		errorHandler(err, res);
 	});
 };
 
@@ -213,20 +163,14 @@ module.exports.saveUserImage = async (req, res, next) => {
 			data.image = `/assets/img/users/${id}/${file.name}`;
 			// data.image = path.join(process.cwd(), 'public', 'assets', 'img', 'users', id, file.name);
 
-			// console.log(data);
-			
-
 			user.set(data);
-
 			const result = await user.save();
-			// await user.save();
 
-			
 			const response = {
 				path: result.image
 			};
 
-			console.log(response);
+			// console.log(response);
 			// console.log(os);
 
 			return res.status(200).json(response);
@@ -282,8 +226,4 @@ module.exports.delUserById = (req, res, next) => {
 	}).catch(err => {
 		errorHandler(err, res);
 	});
-};
-
-module.exports.logout = (req, res, next) => {
-
 };

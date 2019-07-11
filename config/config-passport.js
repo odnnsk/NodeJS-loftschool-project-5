@@ -66,21 +66,6 @@ passport.use(
 	)
 );
 
-// passport.use(
-// 	new GithubStrategy(
-// 		{
-// 			clientID: config.github.clientID,
-// 			clientSecret: config.github.clientSecret,
-// 			callbackURL: config.github.callbackURL,
-// 		},
-// 		function(accessToken, refreshToken, profile, done) {
-// 			console.log('profile: ' + JSON.stringify(profile.displayName));
-// 			// TODO: Create user in MongoDB
-// 			return done(null, profile);
-// 		}
-// 	)
-// );
-
 
 passport.use(
 	new Strategy(params, function(payload, done) {

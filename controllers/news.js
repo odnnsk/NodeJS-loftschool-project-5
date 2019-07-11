@@ -2,22 +2,10 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('user');
 const News = mongoose.model('news');
-const jwt = require('jsonwebtoken');
-const secret = require('../config/config.json').secret;
-// const uuidv4 = require('uuid/v4');
-// const formidable = require('formidable');
-// const path = require('path');
-// const fs = require('fs');
-
+const makeJwtToken = require('../libs/makeJwtToken');
 
 
 const resultUsersConverter = (item) => {
-	const payload = {
-		id: item._id,
-	};
-
-	const access_token = jwt.sign(payload, secret);
-
 	return {
 		id: item._id,
 		username: item.username,
@@ -25,20 +13,19 @@ const resultUsersConverter = (item) => {
 		firstName: item.firstName,
 		middleName: item.middleName,
 		image: item.image,
-		access_token: access_token,
-		// permission: item.permission,
-		// permissionId: item._id,
+		access_token: makeJwtToken(item),
 		password: item.password
 	}
 };
 
+
 const getNewsList = async () => {
+	let resultNews = [];
+	let users = [];
+	let convertUsers = [];
+	let userIds = [];
 	const news = await News.find();
-	const users = await User.find();
 
-	let convertUsers = users.map(resultUsersConverter);
-
-	// console.log(convertUsers);
 
 	let findUserById = userId => {
 		for(let i = 0; i < convertUsers.length; i++){
@@ -48,7 +35,29 @@ const getNewsList = async () => {
 		}
 	};
 
-	let resultNews = news.map(item => {
+	let existsInArray = (id, source) => {
+		if(!source.length) return false;
+
+		for(let i = 0; i < source.length; i++){
+			if(source[i] === id) return true;
+		}
+		
+		return false;
+	};
+
+	news.forEach(el => {
+		if(!existsInArray(el.userId, userIds)){
+			userIds[userIds.length] = el.userId;
+		}
+	});
+
+
+	users = await User.find().where('_id').in(userIds);
+
+	convertUsers = users.map(resultUsersConverter);
+
+
+	resultNews = news.map(item => {
 		let result = {};
 		result.id = item._id;
 		result.date = item.date;
@@ -59,10 +68,10 @@ const getNewsList = async () => {
 		return result;
 	});
 
-	// console.log(resultNews);
 
 	return resultNews;
 };
+
 
 
 const errorHandler = (err, res) => {
