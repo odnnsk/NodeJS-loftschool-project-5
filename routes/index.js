@@ -1,17 +1,11 @@
 const express = require('express');
+const path = require('path');
 const router = express.Router();
 
-// router.use(function (req, res, next) {
-// 	const data = 'data test';
-// 	console.log('%s %s %s', req.method, req.url, req.path);
-// 	next(data)
-// })
-
-// router.all('/', usersCtrl.token);
 
 /* GET home page. */
 router.get('*', (req, res, next) => {
-	res.redirect('/');
+	res.sendFile(path.join(process.cwd(), '/public', 'index.html'));
 });
 
 

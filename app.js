@@ -14,10 +14,6 @@ const app = express();
 require('./db');
 require(path.join(__dirname, 'db', 'userAdmin'));
 
-// view engine setup
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'jade');
-
 // app.use(logger('dev'));
 
 // parse text/plain
@@ -76,9 +72,6 @@ require('./config/config-passport');
 
 // Routes
 app.use('/api', require(path.join(__dirname, 'api')));
-// app.get('/', (req, res, next) => {
-// 	console.log('1111111111');
-// });
 app.use(require(path.join(__dirname, 'routes')));
 
 

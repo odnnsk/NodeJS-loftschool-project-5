@@ -118,6 +118,7 @@ module.exports.login = (req, res, next) => {
 			});
 			return res.json(resultItemConverter(user));
 		} else {
+			console.log(resultItemConverter(user));
 			return res.json(resultItemConverter(user));
 		}
 
@@ -143,20 +144,18 @@ module.exports.registration = (req, res, next) => {
 			newUser.permission = permission;
 			newUser.permissionId = '2';
 			newUser.setPassword(password);
-			newUser
-				.save()
-				.then(user => {
-					// req.logIn(user, err => {
-					// 	if (err) next(err);
-					// 	// return res.json(user);
-					// 	return res.json(resultItemConverter(user));
-					// });
+			newUser.save().then(user => {
+				// req.logIn(user, err => {
+				// 	if (err) next(err);
+				// 	// return res.json(user);
+				// 	return res.json(resultItemConverter(user));
+				// });
 
-					return res.json(resultItemConverter(user));
-				})
-				.catch(err => {
-					errorHandler(err, res);
-				});
+				return res.json(resultItemConverter(user));
+			})
+			.catch(err => {
+				errorHandler(err, res);
+			});
 		}
 	});
 };
@@ -179,6 +178,9 @@ module.exports.saveUserImage = async (req, res, next) => {
 	if (!fs.existsSync(uploadDir)) {
 		fs.mkdirSync(uploadDir, { recursive: true })
 	}
+
+	// console.log(process.cwd());
+	// console.log(__dirname);
 
 	form.uploadDir = uploadDir;
 
@@ -208,14 +210,19 @@ module.exports.saveUserImage = async (req, res, next) => {
 			const user = await User.findById(id);
 
 			data.image = `./assets/img/users/${id}/${file.name}`;
+			// data.image = path.join(process.cwd(), 'public', 'assets', 'img', 'users', id, file.name);
 
 			// console.log(data);
 
 			user.set(data);
 
-			const result = await user.save();
+			// const result = await user.save();
+			await user.save();
+			const result = {
+				path: user.image
+			};
 
-			return res.json(resultItemConverter(result));
+			return res.json(result);
 		});
 
 	});

@@ -26,8 +26,8 @@ const resultUsersConverter = (item) => {
 		middleName: item.middleName,
 		image: item.image,
 		access_token: access_token,
-		permission: item.permission,
-		permissionId: item._id,
+		// permission: item.permission,
+		// permissionId: item._id,
 		password: item.password
 	}
 };
@@ -58,6 +58,8 @@ const getNewsList = async () => {
 
 		return result;
 	});
+
+	// console.log(resultNews);
 
 	return resultNews;
 };
@@ -99,7 +101,7 @@ module.exports.updateNews = async (req, res, next) => {
 	const data = JSON.parse(req.body);
 	const item = await News.findById(req.params.id);
 
-	if(!data) return errorHandler(err, res);
+	if(!data) return errorHandler('Error data', res);
 
 	item.set(data);
 	await item.save();
