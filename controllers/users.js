@@ -201,6 +201,7 @@ module.exports.saveUserImage = async (req, res, next) => {
 		}
 
 
+
 		const fileName = path.join(uploadDir, file.name);
 
 		fs.rename(file.path, fileName, async (err) => {
