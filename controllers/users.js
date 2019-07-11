@@ -4,6 +4,7 @@ const uuidv4 = require('uuid/v4');
 const formidable = require('formidable');
 const path = require('path');
 const fs = require('fs');
+const os = require("os");
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const secret = require('../config/config.json').secret;
@@ -200,8 +201,6 @@ module.exports.saveUserImage = async (req, res, next) => {
 			});
 		}
 
-
-
 		const fileName = path.join(uploadDir, file.name);
 
 		fs.rename(file.path, fileName, async (err) => {
@@ -210,21 +209,27 @@ module.exports.saveUserImage = async (req, res, next) => {
 			//Save data
 			let data = {};
 			const user = await User.findById(id);
-
-			data.image = `./assets/img/users/${id}/${file.name}`;
+			
+			data.image = `/assets/img/users/${id}/${file.name}`;
 			// data.image = path.join(process.cwd(), 'public', 'assets', 'img', 'users', id, file.name);
 
 			// console.log(data);
+			
 
 			user.set(data);
 
-			// const result = await user.save();
-			await user.save();
-			const result = {
-				path: user.image
+			const result = await user.save();
+			// await user.save();
+
+			
+			const response = {
+				path: result.image
 			};
 
-			return res.json(result);
+			console.log(response);
+			// console.log(os);
+
+			return res.status(200).json(response);
 		});
 
 	});
