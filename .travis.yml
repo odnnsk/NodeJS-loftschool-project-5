@@ -11,5 +11,5 @@ deploy:
   strategy: git
 
 app: 
-  master: NodeJS-loftschool-project-5
+  master: nodejs-loftschool-project
   
