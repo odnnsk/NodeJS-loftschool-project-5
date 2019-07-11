@@ -3,7 +3,12 @@
 /**
  * Module dependencies.
  */
-require('dotenv').config()
+const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV == 'development';
+const path = require('path');
+
+const configEnvPath = isDevelopment ? path.join(process.cwd(), '.env.local') : path.join(process.cwd(), '.env');
+
+require('dotenv').config({ path: configEnvPath });
 var app = require('../app');
 var debug = require('debug')('loft-homework-5:server');
 var http = require('http');
@@ -15,6 +20,7 @@ var http = require('http');
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
+
 
 /**
  * Create HTTP server.

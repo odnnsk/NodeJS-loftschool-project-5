@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('user');
-const uuidv4 = require('uuid/v4');
-
 const db = mongoose.connection;
 
 //Create admin user on init
