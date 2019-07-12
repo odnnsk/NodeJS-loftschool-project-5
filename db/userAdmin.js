@@ -29,5 +29,7 @@ db.on('connected', () => {
 				console.log(err);
 			});
 		}
+	}).catch(err => {
+		next(err);
 	});
 });

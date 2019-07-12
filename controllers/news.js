@@ -73,7 +73,6 @@ const getNewsList = async () => {
 };
 
 
-
 const errorHandler = (err, res) => {
 	res.status(400).json({
 		statusMessage: 'Error',

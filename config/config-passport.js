@@ -46,7 +46,6 @@ const params = {
 passport.use(
 	new LocalStrategy(
 		{
-			// usernameField: 'email',
 			usernameField: 'username',
 			// passReqToCallback: true,
 		},

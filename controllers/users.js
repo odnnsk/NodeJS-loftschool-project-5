@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const passport = require('passport');
 const makeJwtToken = require('../libs/makeJwtToken');
+const Jimp = require('jimp');
 
 
 const resultItemConverter = (item) => {
@@ -156,6 +157,18 @@ module.exports.saveUserImage = async (req, res, next) => {
 		fs.rename(file.path, fileName, async (err) => {
 			if (err) return errorHandler(err, res);
 
+			//Image resize
+			Jimp.read(fileName).then(img => {
+				const w = img.bitmap.width; //width of the image
+				const h = img.bitmap.height;
+
+				if(w !== h || w !== 370 || h !== 370){
+					return img.cover(370, 370).write(fileName);
+				}
+			}).catch(err => {
+				next(err);
+			});
+
 			//Save data
 			let data = {};
 			const user = await User.findById(id);
@@ -169,9 +182,6 @@ module.exports.saveUserImage = async (req, res, next) => {
 			const response = {
 				path: result.image
 			};
-
-			// console.log(response);
-			// console.log(os);
 
 			return res.status(200).json(response);
 		});

@@ -14,7 +14,6 @@ const ws = io => {
 		//Send message
 		socket.on('chat message', (msg, toUserId) => {
 			socket.to(toUserId).emit('chat message', msg, socket.id);
-			// socket.emit('history', socket.id, msg);
 		});
 
 		//Disconect
