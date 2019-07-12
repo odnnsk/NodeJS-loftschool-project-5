@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const User = mongoose.model('user');
 const News = mongoose.model('news');
 const makeJwtToken = require('../libs/makeJwtToken');
+const checkPermission = require('../libs/checkPermission');
 
 
 const resultUsersConverter = (item) => {
@@ -80,8 +81,19 @@ const errorHandler = (err, res) => {
 	});
 };
 
+const errorAccessHandler = () => {
+	res.status(403).json({
+		statusMessage: 'No access',
+		data: { status: 403, message: 'No access' },
+	});
+};
+
 
 module.exports.newNews = async (req, res, next) => {
+	checkPermission('news', 'C', req.user.permission, access => {
+		if(!access) return errorAccessHandler();
+	});
+
 	const data = JSON.parse(req.body);
 	const { userId, theme, text, date } = data;
 
@@ -100,12 +112,20 @@ module.exports.newNews = async (req, res, next) => {
 };
 
 module.exports.getNews = async (req, res, next) => {
+	checkPermission('news', 'R', req.user.permission, access => {
+		if(!access) return errorAccessHandler();
+	});
+
 	const result = await getNewsList();
 
 	return res.json(result);
 };
 
 module.exports.updateNews = async (req, res, next) => {
+	checkPermission('news', 'U', req.user.permission, access => {
+		if(!access) return errorAccessHandler();
+	});
+
 	const data = JSON.parse(req.body);
 	const item = await News.findById(req.params.id);
 
@@ -119,6 +139,10 @@ module.exports.updateNews = async (req, res, next) => {
 };
 
 module.exports.deleteNews = async (req, res, next) => {
+	checkPermission('news', 'D', req.user.permission, access => {
+		if(!access) return errorAccessHandler();
+	});
+
 	await News.findByIdAndRemove({ _id: req.params.id });
 
 	const result = await getNewsList();

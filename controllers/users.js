@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const passport = require('passport');
 const makeJwtToken = require('../libs/makeJwtToken');
+const checkPermission = require('../libs/checkPermission');
 const Jimp = require('jimp');
 
 
@@ -31,6 +32,13 @@ const errorHandler = (err, res) => {
 	});
 };
 
+const errorAccessHandler = () => {
+	res.status(403).json({
+		statusMessage: 'No access',
+		data: { status: 403, message: 'No access' },
+	});
+};
+
 
 module.exports.token = (req, res, next) => {
 	passport.authenticate('jwt', { session: false }, (err, user, info) => {
@@ -44,7 +52,11 @@ module.exports.token = (req, res, next) => {
 			});
 		}
 
-		return res.json(resultItemConverter(user));
+		req.logIn(user, err => {
+			if (err) errorHandler(err, res);
+			return res.json(resultItemConverter(user));
+		});
+
 	})(req, res, next);
 };
 
@@ -54,7 +66,7 @@ module.exports.login = (req, res, next) => {
 
 	req.body = data;
 
-	passport.authenticate('local', { session: false }, function(err, user, info) {
+	passport.authenticate('local', function(err, user, info) {
 		if (err) {
 			return next(err);
 		}
@@ -65,19 +77,24 @@ module.exports.login = (req, res, next) => {
 			});
 		}
 
-		if (req.body.remembered) {
-			const access_token = makeJwtToken(user);
+		req.logIn(user, err => {
+			if (err) errorHandler(err, res);
 
-			res.cookie('access_token', access_token, {
-				maxAge: 7 * 60 * 60 * 1000,
-				path: '/',
-				httpOnly: false,
-			});
-			return res.json(resultItemConverter(user));
-		} else {
-			console.log(resultItemConverter(user));
-			return res.json(resultItemConverter(user));
-		}
+			if (req.body.remembered) {
+				const access_token = makeJwtToken(user);
+
+				res.cookie('access_token', access_token, {
+					maxAge: 7 * 60 * 60 * 1000,
+					path: '/',
+					httpOnly: false,
+				});
+				return res.json(resultItemConverter(user));
+			} else {
+				// console.log(resultItemConverter(user));
+				return res.json(resultItemConverter(user));
+			}
+
+		});
 
 	})(req, res, next);
 };
@@ -101,7 +118,12 @@ module.exports.registration = (req, res, next) => {
 			newUser.permissionId = '2';
 			newUser.setPassword(password);
 			newUser.save().then(user => {
-				return res.json(resultItemConverter(user));
+
+				req.logIn(user, err => {
+					if (err) errorHandler(err, res);
+					return res.json(resultItemConverter(user));
+				});
+
 			})
 			.catch(err => {
 				errorHandler(err, res);
@@ -113,7 +135,10 @@ module.exports.registration = (req, res, next) => {
 };
 
 module.exports.getUsers = (req, res, next) => {
-	// User.find({permissionId: "2"}).then(users => {
+	checkPermission('setting', 'R', req.user.permission, access => {
+		if(!access) return errorAccessHandler();
+	});
+
 	User.find({ username: { $ne: 'admin' } }).then(users => {
 		return res.status(200).json(users.map((item) => resultItemConverter(item)));
 	}).catch(err => {
@@ -212,6 +237,10 @@ module.exports.updateUser = async (req, res, next) => {
 };
 
 module.exports.updateUserPermission = async (req, res, next) => {
+	checkPermission('setting', 'U', req.user.permission, access => {
+		if(!access) return errorAccessHandler();
+	});
+
 	const id = req.params.id;
 	const data =  JSON.parse(req.body);
 	const user = await User.findById(id);
@@ -224,6 +253,10 @@ module.exports.updateUserPermission = async (req, res, next) => {
 };
 
 module.exports.delUserById = (req, res, next) => {
+	checkPermission('setting', 'D', req.user.permission, access => {
+		if(!access) return errorAccessHandler();
+	});
+
 	const id = req.params.id;
 
 	console.log(req.params);

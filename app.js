@@ -61,8 +61,8 @@ app.use(function(req, res, next) {
 
 //Passport
 require('./config/config-passport');
-// app.use(passport.initialize());
-// app.use(passport.session());
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 // Routes
