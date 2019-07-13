@@ -21,7 +21,7 @@ const isAuthenticated = (req, res, next) => {
 // User
 router.post('/authFromToken', usersCtrl.token);
 
-router.post('/saveNewUser', isAuthenticated, usersCtrl.registration);
+router.post('/saveNewUser', usersCtrl.registration);
 
 router.post('/login', usersCtrl.login);
 
